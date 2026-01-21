@@ -1,0 +1,6 @@
+# Local configuration (paths)
+matlab/config.m
+
+# Large raw datasets (stored locally)
+data/raw/*
+
