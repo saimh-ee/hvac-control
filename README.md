@@ -13,8 +13,6 @@ Primary dataset: Photon Energy office-building temperature control dataset hoste
 Link:
 https://huggingface.co/datasets/ml-photonenergy/Photon-Energy-office-building-temperature-control/tree/main
 
-License on the dataset page: CC BY-SA 4.0. :contentReference[oaicite:1]{index=1}
-
 Note: the raw dataset is large. This repo does not include the full raw dump; it includes processed subsets used for modeling/control.
 
 ## Repo structure
@@ -43,7 +41,7 @@ Note: the raw dataset is large. This repo does not include the full raw dump; it
   - T(k+1) = a*T(k) + b*u(k) + c
   - with separate b for heating vs cooling
 
-## OpenPLC / PLC implementation (in progress)
+## OpenPLC / PLC implementation
 
 Goal: reproduce the same PI logic and the same discrete-time plant update inside OpenPLC Structured Text, running under OpenPLC Runtime v4 on Windows.
 
