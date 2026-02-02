@@ -1,6 +1,30 @@
-# Local configuration (paths)
+# Local config
 matlab/config.m
 
-# Large raw datasets (stored locally)
+# Raw data stays local
+data/raw/
 data/raw/*
+!data/raw/ReadMe.md
 
+# MATLAB/Simulink generated
+slprj/
+**/slprj*/
+*.slxc
+*.autosave
+*.asv
+*.m~
+**/tmwinternal/
+**/simulink_cache.xml
+**/checksumOfCache.mat
+**/varInfo.mat
+
+# OS + IDE junk
+.DS_Store
+Thumbs.db
+.Rhistory
+.RData
+.Rproj.user/
+
+# Processed MATLAB outputs (keep local)
+data/processed/*.mat
+simulink/*.mat
