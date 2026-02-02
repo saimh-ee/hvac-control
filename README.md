@@ -1,73 +1,55 @@
 # HVAC Control (Data → Model ID → PI Control → PLC)
 
-This repo documents a small end-to-end controls project:
-1) extract and preprocess HVAC time-series data,
-2) identify a simple discrete-time plant model,
-3) tune/test a PI controller in Simulink,
-4) port the same logic into an OpenPLC Structured Text program (OpenPLC Runtime v4) for PLC-style simulation.
+End-to-end controls project:
+- preprocess HVAC time-series data
+- identify a simple discrete-time plant model
+- tune/test a PI controller in Simulink
+- port the same logic into OpenPLC Structured Text (OpenPLC Runtime v4 on Windows)
 
 ## Data source
-
-Primary dataset: Photon Energy office-building temperature control dataset hosted on Hugging Face. :contentReference[oaicite:0]{index=0}
-
-Link:
+Photon Energy office-building temperature control dataset (Hugging Face):
 https://huggingface.co/datasets/ml-photonenergy/Photon-Energy-office-building-temperature-control/tree/main
 
-Note: the raw dataset is large. This repo does not include the full raw dump; it includes processed subsets used for modeling/control.
+Raw dataset is large, so this repo only includes processed subsets.
 
 ## Repo structure
+- `data/raw/` placeholder only (raw not committed)
+- `data/processed/` processed CSVs used for ID + control tests
+- `scripts/` R scripts for extract/merge/resample/splits
+- `matlab/` plant identification + parameter export
+- `simulink/` PI simulation models
+- `PLC/` OpenPLC Runtime v4 project + ST program
 
-- `data/raw/`
-  - placeholder only (raw data not committed)
-- `data/processed/`
-  - processed CSVs used for training/validation/testing and control experiments
-- `scripts/`
-  - R scripts for extraction, merge/resample, and dataset generation
-- `matlab/`
-  - MATLAB scripts for plant identification and exporting parameters
-- `simulink/`
-  - Simulink models used to simulate and tune the PI controller
-- `PLC/`
-  - OpenPLC Runtime v4 project files and Structured Text program (to be added next)
+## Identified plant model
+Discrete-time update used in Simulink + PLC:
+- T(k+1) = a*T(k) + b*u(k) + c
+- b is different for heating vs cooling
 
-## What the controller does
+Final parameters:
+- a = 0.999951185242347
+- b_heat = 0.020589313234843
+- b_cool = 0.006176793970453
+- c = -0.001383511783900
 
-- PI controller with:
-  - error deadband
-  - actuator saturation (e.g., command limited to [-1, 1])
-  - integrator clamping to prevent runaway
-- Heating and cooling supported (different plant gains for heat vs cool)
-- Discrete-time simulation uses a simple identified model of the form:
-  - T(k+1) = a*T(k) + b*u(k) + c
-  - with separate b for heating vs cooling
+## Controller (PI) setup
+- Kp = 0.9
+- Ki = 1.75e-5
+- deadband = ±0.25 °C
+- command saturation = [-1, 1]
+- integrator clamp = [-1, 1]
+- heat if u ≥ 0, cool if u < 0 (switches b)
 
-## OpenPLC / PLC implementation
-
-Goal: reproduce the same PI logic and the same discrete-time plant update inside OpenPLC Structured Text, running under OpenPLC Runtime v4 on Windows.
-
-Planned contents in `PLC/`:
-- the OpenPLC project export
-- the Structured Text program used for simulation
-- a short note on cycle time / sample tick configuration
-
-## Results
-
-Add plots/screenshots under:
-- `results/figures/`
-- `results/notes.md` (optional short write-up of what each figure shows)
-
-Recommended minimum screenshots:
-- setpoint vs indoor temperature (step schedule test)
-- control command (show saturation + sign changes for heat/cool)
-- sample index / sample tick timing (to prove the PLC timing matches the intended sample time)
-
-Example embedding in this README after you add images:
-- `![Setpoint vs Indoor Temp](results/figures/setpoint_vs_temp.png)`
-- `![Control Command](results/figures/control_command.png)`
+Timing notes:
+- PLC task can run fast (e.g., 20 ms), but the control/plant “sample tick” is set to 5 minutes (T#300s) to match the dataset timestep.
 
 ## How to run (high level)
+1) Run scripts in `scripts/` to generate `data/processed/`
+2) Run `matlab/identify_plant.m` to confirm/regen the plant parameters
+3) Open `simulink/hvac_pid.slx` to simulate the PI controller
+4) Open `PLC/hvac_control_plc/` in OpenPLC Editor and run via OpenPLC Runtime v4
+   - watch variables in the debugger (setpointTemperature, indoorTemperature, controlCommand, sampleIndex)
 
-- Run the R scripts in `scripts/` to generate `data/processed/` outputs
-- Run `matlab/identify_plant.m` to identify/record plant parameters
-- Open the Simulink models in `simulink/` to simulate and tune PI behavior
-- (Next) Load the PLC program into OpenPLC Runtime v4 and watch variables in the debugger
+Quick sanity checks I used:
+- sampleIndex increases at the intended sample tick
+- indoorTemperature moves toward setpoint on schedule changes
+- controlCommand stays within [-1, 1] and flips sign for heating/cooling
