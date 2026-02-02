@@ -1,0 +1,23 @@
+# OpenPLC generated build output
+build/
+generated/
+**/generated/
+
+# Generated C / glue / debug artifacts (keep source project instead)
+*.c
+*.h
+*.cpp
+*.so
+*.dll
+*.o
+*.a
+*.obj
+*.exe
+
+# Runtime/editor temp
+*.log
+*.tmp
+*.cache
+
+# If OpenPLC creates editor state files
+*.bak

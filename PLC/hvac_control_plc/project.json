@@ -1,0 +1,43 @@
+{
+  "meta": {
+    "name": "test2",
+    "type": "plc-project"
+  },
+  "data": {
+    "dataTypes": [],
+    "pous": [],
+    "configuration": {
+      "resource": {
+        "tasks": [
+          {
+            "name": "task0",
+            "triggering": "Cyclic",
+            "interval": "T#20ms",
+            "priority": 1
+          }
+        ],
+        "instances": [
+          {
+            "name": "instance0",
+            "task": "task0",
+            "program": "main"
+          }
+        ],
+        "globalVariables": []
+      }
+    },
+    "deletedPous": [],
+    "debugVariables": {
+      "pous": {
+        "main": [
+          "setpointTemperature",
+          "indoorTemperature",
+          "trackingErrorDegC",
+          "integratorState",
+          "controlCommand",
+          "sampleIndex"
+        ]
+      }
+    }
+  }
+}
